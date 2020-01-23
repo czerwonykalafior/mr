@@ -1,2 +1,4 @@
 .idea/
 venv/
+.dmypy.json
+.mypy_cache
