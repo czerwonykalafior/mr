@@ -26,7 +26,7 @@ class Morphy:
     @classmethod
     def register_node_type(cls):
         """
-        Adds initializer of a decorated class as a 'cls' (Morphy) method.
+        Add initializer of a decorated class as a 'cls' (Morphy) method.
         New class is a node type with some special powers.
         :return: Same, not changed class that was decorated.
         """
