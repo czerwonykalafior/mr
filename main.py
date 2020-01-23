@@ -10,7 +10,7 @@ class Morphy:
                  upstreams: t.Optional[t.Iterable[Morphy]] = None,
                  stream_name: str = None):
         self.stream_name = stream_name
-        self.upstreams = upstreams if upstreams is not None else [upstream]
+        self.upstreams = list(upstreams) if upstreams is not None else [upstream]
         self.downstreams: list = []
 
         self.add_self_to_previous_nodes()
@@ -21,14 +21,19 @@ class Morphy:
                 upstream.downstreams.append(self)
 
     @classmethod
-    def register_arrow(cls):
-        def _(func):
-            @functools.wraps(func)
-            def wrapper(*args, **kwargs):
-                result = func(*args, **kwargs)
-                return result
+    def register_node_type(cls):
+        """
+        Adds initializer of a decorated class as a 'cls' (Morphy) method.
+        :return: Same, not changed class that was decorated.
+        """
 
-            setattr(cls, func.__name__, func)
-            return wrapper()
+        def _(node_type: t.Type):
+            @functools.wraps(node_type)
+            def wrapper(*args, **kwargs):
+                node = node_type(*args, **kwargs)
+                return node
+
+            setattr(cls, node_type.__name__, wrapper)
+            return node_type
 
         return _
