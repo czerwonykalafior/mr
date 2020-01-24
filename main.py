@@ -1,6 +1,9 @@
 from __future__ import annotations
 import functools
 import typing as t
+import logging
+
+logger = logging.getLogger(__name__)
 
 
 class Morphy:
@@ -45,9 +48,26 @@ class Morphy:
     def emit(self, data_to_process):
         self._emit(data_to_process)
 
-    def execute_node(self, data_to_process, called_by=None):
-        pass  # interface for child classes, never executed on base class
-
     def _emit(self, data_to_process):
         for child in self.child_nodes:
-            child.execute_node(data_to_process, called_by=self)
+            child.catch_execute(data_to_process, called_by=self)
+
+    def catch_execute(self, data_to_process, called_by=None):
+        try:
+            self.execute_node(data_to_process, called_by=called_by)
+        except Exception as e:
+            logger.exception(e)
+
+    # TODO: catch context and exceptions
+    def execute_node(self, data_to_process, called_by=None) -> None:
+        pass  # interface for child classes, never executed on base class
+
+    def connect(self, node: Morphy):
+        self._add_child_node(node)
+        node._add_parent_node(self)
+
+    def _add_child_node(self, node):
+        self.child_nodes.append(node)
+
+    def _add_parent_node(self, node):
+        self.parent_nodes.append(node)
